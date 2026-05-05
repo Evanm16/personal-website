@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evan Martinez — Audio Journalist</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── RESET & BASE ────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:        #1a1410;
+      --paper:      #f5f0e8;
+      --warm-mid:   #e8dfc8;
+      --accent:     #b8390e;
+      --accent-dim: #8c2b0a;
+      --muted:      #7a6e60;
+      --rule:       #c8bfaa;
+      --col-w:      720px;
+      --wide-w:     1100px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'Libre Baskerville', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.75;
+      overflow-x: hidden;
+    }
+
+    /* ─── NOISE TEXTURE OVERLAY ───────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+      opacity: .03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 128px 128px;
+    }
+
+    /* ─── MASTHEAD ────────────────────────────────────── */
+    header {
+      border-bottom: 3px double var(--ink);
+      padding: 0 clamp(1.5rem, 5vw, 4rem);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .masthead-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 0 .8rem;
+      border-bottom: 1px solid var(--rule);
+      font-family: 'DM Mono', monospace;
+      font-size: .7rem;
+      color: var(--muted);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .masthead-date { }
+    .masthead-tagline { }
+
+    .masthead-center {
+      text-align: center;
+      padding: 3rem 0 2.5rem;
+      position: relative;
+    }
+
+    .masthead-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: .65rem;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(4rem, 10vw, 8rem);
+      font-weight: 900;
+      line-height: .92;
+      letter-spacing: -.02em;
+      color: var(--ink);
+      animation: fadeUp .9s ease both;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .masthead-sub {
+      margin-top: 1.4rem;
+      font-family: 'Libre Baskerville', serif;
+      font-size: 1.05rem;
+      color: var(--muted);
+      font-style: italic;
+      animation: fadeUp .9s .15s ease both;
+    }
+
+    .masthead-rule {
+      width: 60px;
+      height: 2px;
+      background: var(--accent);
+      margin: 1.4rem auto 0;
+      animation: fadeUp .9s .25s ease both;
+    }
+
+    /* ─── NAV ─────────────────────────────────────────── */
+    nav {
+      border-top: 1px solid var(--rule);
+      padding: 1rem 0;
+      display: flex;
+      justify-content: center;
+      gap: 2.5rem;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      font-family: 'DM Mono', monospace;
+      font-size: .72rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+      position: relative;
+      padding-bottom: 2px;
+      transition: color .2s;
+    }
+
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0; height: 1px;
+      background: var(--accent);
+      transition: width .25s ease;
+    }
+
+    nav a:hover { color: var(--accent); }
+    nav a:hover::after { width: 100%; }
+
+    /* ─── LAYOUT ──────────────────────────────────────── */
+    main {
+      max-width: var(--wide-w);
+      margin: 0 auto;
+      padding: 0 clamp(1.5rem, 5vw, 4rem);
+    }
+
+    section { padding: 5rem 0; border-bottom: 1px solid var(--rule); }
+    section:last-child { border-bottom: none; }
+
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: .65rem;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -.01em;
+      margin-bottom: 1.5rem;
+    }
+
+    h2 em { font-style: italic; color: var(--accent); }
+
+    /* ─── ABOUT ───────────────────────────────────────── */
+    #about .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: start;
+    }
+
+    @media (max-width: 700px) {
+      #about .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    }
+
+    .about-text p { color: var(--ink); margin-bottom: 1.2rem; }
+    .about-text p:first-of-type { font-size: 1.15rem; }
+
+    .about-sidebar {
+      padding-top: 1rem;
+    }
+
+    .info-block {
+      border-top: 1px solid var(--rule);
+      padding: 1rem 0;
+    }
+
+    .info-block:last-child { border-bottom: 1px solid var(--rule); }
+
+    .info-label {
+      font-family: 'DM Mono', monospace;
+      font-size: .65rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: .3rem;
+    }
+
+    .info-value {
+      font-size: .95rem;
+      color: var(--ink);
+    }
+
+    /* ─── AUDIO WORK ──────────────────────────────────── */
+    .audio-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2px;
+      margin-top: 2rem;
+    }
+
+    .audio-card {
+      background: var(--warm-mid);
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: background .2s;
+      cursor: pointer;
+    }
+
+    .audio-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px; height: 0;
+      background: var(--accent);
+      transition: height .3s ease;
+    }
+
+    .audio-card:hover::before { height: 100%; }
+    .audio-card:hover { background: #e0d6c0; }
+
+    .audio-type {
+      font-family: 'DM Mono', monospace;
+      font-size: .6rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: .75rem;
+    }
+
+    .audio-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: .75rem;
+    }
+
+    .audio-card p {
+      font-size: .88rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .audio-meta {
+      font-family: 'DM Mono', monospace;
+      font-size: .65rem;
+      color: var(--muted);
+      letter-spacing: .05em;
+    }
+
+    .play-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      font-family: 'DM Mono', monospace;
+      font-size: .65rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      text-decoration: none;
+      margin-top: .75rem;
+      transition: gap .2s;
+    }
+
+    .play-btn:hover { gap: .8rem; }
+
+    .play-btn svg { width: 14px; height: 14px; }
+
+    /* ─── WAVEFORM DECO ───────────────────────────────── */
+    .waveform {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      height: 28px;
+      margin-bottom: 1rem;
+    }
+
+    .waveform span {
+      display: block;
+      width: 3px;
+      border-radius: 2px;
+      background: var(--accent);
+      opacity: .5;
+      animation: wave 1.2s ease-in-out infinite;
+    }
+
+    @keyframes wave {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(2.5); }
+    }
+
+    /* ─── WRITTEN WORK ────────────────────────────────── */
+    .writing-list { margin-top: 1rem; }
+
+    .writing-item {
+      display: grid;
+      grid-template-columns: 80px 1fr auto;
+      gap: 1.5rem;
+      align-items: baseline;
+      padding: 1.5rem 0;
+      border-top: 1px solid var(--rule);
+      transition: color .15s;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .writing-item:last-child { border-bottom: 1px solid var(--rule); }
+
+    .writing-item:hover .writing-title { color: var(--accent); }
+
+    .writing-year {
+      font-family: 'DM Mono', monospace;
+      font-size: .7rem;
+      color: var(--muted);
+      padding-top: .15rem;
+    }
+
+    .writing-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      transition: color .2s;
+    }
+
+    .writing-pub {
+      font-style: italic;
+      font-size: .85rem;
+      color: var(--muted);
+      margin-top: .2rem;
+      display: block;
+    }
+
+    .writing-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: .6rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      background: var(--warm-mid);
+      color: var(--muted);
+      padding: .25rem .6rem;
+      border-radius: 2px;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 600px) {
+      .writing-item { grid-template-columns: 1fr; gap: .4rem; }
+      .writing-year { font-size: .65rem; }
+      .writing-tag { display: none; }
+    }
+
+    /* ─── CONTACT ─────────────────────────────────────── */
+    #contact .contact-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: start;
+    }
+
+    @media (max-width: 700px) {
+      #contact .contact-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+    }
+
+    .contact-text p { color: var(--muted); margin-bottom: 1.2rem; }
+
+    .contact-email {
+      display: inline-block;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-style: italic;
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid currentColor;
+      transition: color .2s;
+    }
+
+    .contact-email:hover { color: var(--accent-dim); }
+
+    .social-links {
+      display: flex;
+      flex-direction: column;
+      gap: .6rem;
+      margin-top: 3rem;
+    }
+
+    .social-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-family: 'DM Mono', monospace;
+      font-size: .75rem;
+      letter-spacing: .1em;
+      color: var(--ink);
+      text-decoration: none;
+      transition: color .2s;
+    }
+
+    .social-link:hover { color: var(--accent); }
+
+    .social-link span {
+      width: 28px;
+      height: 1px;
+      background: var(--rule);
+      transition: width .2s, background .2s;
+    }
+
+    .social-link:hover span { width: 40px; background: var(--accent); }
+
+    /* ─── FOOTER ──────────────────────────────────────── */
+    footer {
+      border-top: 3px double var(--ink);
+      padding: 2rem clamp(1.5rem, 5vw, 4rem);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .footer-copy {
+      font-family: 'DM Mono', monospace;
+      font-size: .65rem;
+      color: var(--muted);
+      letter-spacing: .08em;
+    }
+
+    /* ─── ANIMATIONS ──────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── PULL QUOTE ──────────────────────────────────── */
+    .pull-quote {
+      border-left: 3px solid var(--accent);
+      padding: 1.5rem 2rem;
+      margin: 3rem 0;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-style: italic;
+      line-height: 1.4;
+      color: var(--ink);
+    }
+
+    .pull-quote cite {
+      display: block;
+      font-family: 'DM Mono', monospace;
+      font-style: normal;
+      font-size: .65rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: .75rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── HEADER ──────────────────────────────────────── -->
+<header>
+  <div class="masthead-top">
+    <span class="masthead-date" id="current-date">Est. New York</span>
+    <span class="masthead-tagline">Audio Journalism · Long-Form Reporting · Essay</span>
+    <span>Vol. I</span>
+  </div>
+
+  <div class="masthead-center">
+    <span class="masthead-eyebrow">The Work of</span>
+    <h1>Evan<br><em>Martinez</em></h1>
+    <p class="masthead-sub">Audio journalist, reporter & writer — telling the stories that deserve to be heard.</p>
+    <div class="masthead-rule"></div>
+  </div>
+
+  <nav>
+    <a href="#about">About</a>
+    <a href="#audio">Audio</a>
+    <a href="#writing">Writing</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
+
+<!-- ─── MAIN ────────────────────────────────────────── -->
+<main>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <p class="section-label">Who I Am</p>
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <h2>Chasing the <em>story</em> behind the story.</h2>
+        <p>I'm Evan Martinez, an audio journalist and writer based in New York. My work lives at the intersection of sound and narrative — I produce documentary podcasts, radio features, and long-form reported pieces that ask hard questions and take their time with the answers.</p>
+        <p>My reporting has taken me from community board meetings to federal courthouses, from rural sound archives to urban noise ordinances. I believe the human voice, recorded well and cut with care, can carry weight that no text ever quite matches.</p>
+        <p>When I'm not behind a microphone or a keyboard, I'm listening — to cities, to people, to silence.</p>
+
+        <blockquote class="pull-quote">
+          "Every great piece of audio journalism starts with someone willing to be honest in a room with a recorder."
+          <cite>— on craft</cite>
+        </blockquote>
+      </div>
+
+      <div class="about-sidebar reveal">
+        <div class="info-block">
+          <div class="info-label">Based In</div>
+          <div class="info-value">New York, NY</div>
+        </div>
+        <div class="info-block">
+          <div class="info-label">Specialties</div>
+          <div class="info-value">Documentary podcasting, radio features, investigative reporting, personal essay</div>
+        </div>
+        <div class="info-block">
+          <div class="info-label">Currently</div>
+          <div class="info-value">Open to commissions & collaborations</div>
+        </div>
+        <div class="info-block">
+          <div class="info-label">Tools of the Trade</div>
+          <div class="info-value">Zoom H6, Adobe Audition, a good pair of headphones</div>
+        </div>
+        <div class="info-block">
+          <div class="info-label">Education</div>
+          <div class="info-value">B.A. Journalism — [Your University]</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AUDIO WORK -->
+  <section id="audio">
+    <p class="section-label">Audio Work</p>
+    <h2>Reported & <em>produced</em> stories.</h2>
+
+    <div class="audio-grid">
+
+      <div class="audio-card reveal">
+        <div class="waveform">
+          <span style="height:40%; animation-delay:.0s"></span>
+          <span style="height:80%; animation-delay:.1s"></span>
+          <span style="height:60%; animation-delay:.2s"></span>
+          <span style="height:100%; animation-delay:.3s"></span>
+          <span style="height:50%; animation-delay:.4s"></span>
+          <span style="height:70%; animation-delay:.5s"></span>
+          <span style="height:40%; animation-delay:.6s"></span>
+          <span style="height:90%; animation-delay:.7s"></span>
+        </div>
+        <div class="audio-type">Podcast · Documentary</div>
+        <h3>Project Title One</h3>
+        <p>A brief description of this audio project — what it covers, who it's for, and what makes it worth your time. Two or three sentences is enough.</p>
+        <div class="audio-meta">Outlet Name · Year · 24 min</div>
+        <a href="#" class="play-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Listen
+        </a>
+      </div>
+
+      <div class="audio-card reveal">
+        <div class="waveform">
+          <span style="height:60%; animation-delay:.1s"></span>
+          <span style="height:30%; animation-delay:.2s"></span>
+          <span style="height:90%; animation-delay:.3s"></span>
+          <span style="height:50%; animation-delay:.4s"></span>
+          <span style="height:100%; animation-delay:.5s"></span>
+          <span style="height:40%; animation-delay:.6s"></span>
+          <span style="height:70%; animation-delay:.0s"></span>
+          <span style="height:55%; animation-delay:.7s"></span>
+        </div>
+        <div class="audio-type">Radio Feature</div>
+        <h3>Project Title Two</h3>
+        <p>Another audio project description. Replace with your actual work — don't be afraid to brag a little. This is your portfolio.</p>
+        <div class="audio-meta">Outlet Name · Year · 18 min</div>
+        <a href="#" class="play-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Listen
+        </a>
+      </div>
+
+      <div class="audio-card reveal">
+        <div class="waveform">
+          <span style="height:50%; animation-delay:.3s"></span>
+          <span style="height:100%; animation-delay:.4s"></span>
+          <span style="height:45%; animation-delay:.5s"></span>
+          <span style="height:80%; animation-delay:.6s"></span>
+          <span style="height:30%; animation-delay:.7s"></span>
+          <span style="height:65%; animation-delay:.0s"></span>
+          <span style="height:90%; animation-delay:.1s"></span>
+          <span style="height:40%; animation-delay:.2s"></span>
+        </div>
+        <div class="audio-type">Investigative Series</div>
+        <h3>Project Title Three</h3>
+        <p>Describe the scope, impact, or angle that made this piece worth making. A sentence or two about the reporting process can humanize it.</p>
+        <div class="audio-meta">Outlet Name · Year · Series</div>
+        <a href="#" class="play-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Listen
+        </a>
+      </div>
+
+      <div class="audio-card reveal">
+        <div class="waveform">
+          <span style="height:70%; animation-delay:.2s"></span>
+          <span style="height:40%; animation-delay:.3s"></span>
+          <span style="height:85%; animation-delay:.4s"></span>
+          <span style="height:55%; animation-delay:.5s"></span>
+          <span style="height:100%; animation-delay:.6s"></span>
+          <span style="height:35%; animation-delay:.7s"></span>
+          <span style="height:60%; animation-delay:.0s"></span>
+          <span style="height:75%; animation-delay:.1s"></span>
+        </div>
+        <div class="audio-type">Oral History</div>
+        <h3>Project Title Four</h3>
+        <p>A short description of this oral history project, who you spoke with, and what you uncovered that hadn't been heard before.</p>
+        <div class="audio-meta">Outlet Name · Year · 35 min</div>
+        <a href="#" class="play-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Listen
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- WRITTEN WORK -->
+  <section id="writing">
+    <p class="section-label">Written Work</p>
+    <h2>On the page, <em>in ink.</em></h2>
+
+    <div class="writing-list">
+
+      <a href="#" class="writing-item reveal">
+        <span class="writing-year">2024</span>
+        <div>
+          <div class="writing-title">Article or Essay Title Goes Here</div>
+          <span class="writing-pub">Publication Name</span>
+        </div>
+        <span class="writing-tag">Feature</span>
+      </a>
+
+      <a href="#" class="writing-item reveal">
+        <span class="writing-year">2024</span>
+        <div>
+          <div class="writing-title">Another Piece You're Proud Of</div>
+          <span class="writing-pub">Publication Name</span>
+        </div>
+        <span class="writing-tag">Investigative</span>
+      </a>
+
+      <a href="#" class="writing-item reveal">
+        <span class="writing-year">2023</span>
+        <div>
+          <div class="writing-title">A Personal Essay or Opinion Column</div>
+          <span class="writing-pub">Publication Name</span>
+        </div>
+        <span class="writing-tag">Essay</span>
+      </a>
+
+      <a href="#" class="writing-item reveal">
+        <span class="writing-year">2023</span>
+        <div>
+          <div class="writing-title">Reported Story with Strong Narrative Voice</div>
+          <span class="writing-pub">Publication Name</span>
+        </div>
+        <span class="writing-tag">Reported</span>
+      </a>
+
+      <a href="#" class="writing-item reveal">
+        <span class="writing-year">2022</span>
+        <div>
+          <div class="writing-title">Earlier Work That Still Holds Up</div>
+          <span class="writing-pub">Publication Name</span>
+        </div>
+        <span class="writing-tag">Profile</span>
+      </a>
+
+      <a href="#" class="writing-item reveal">
+        <span class="writing-year">2022</span>
+        <div>
+          <div class="writing-title">Another Strong Piece from Earlier in Your Career</div>
+          <span class="writing-pub">Publication Name</span>
+        </div>
+        <span class="writing-tag">Feature</span>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <p class="section-label">Get in Touch</p>
+    <div class="contact-inner">
+      <div class="contact-text reveal">
+        <h2>Let's make<br>something <em>worth hearing.</em></h2>
+        <p>I'm available for freelance commissions, podcast consulting, editorial collaborations, and speaking engagements.</p>
+        <p>Pitches, story tips, and general correspondence are all welcome. I read everything.</p>
+        <a href="mailto:evan@youremail.com" class="contact-email">evan@youremail.com</a>
+      </div>
+
+      <div class="social-links reveal">
+        <a href="#" class="social-link">
+          <span></span>
+          Twitter / X
+        </a>
+        <a href="#" class="social-link">
+          <span></span>
+          LinkedIn
+        </a>
+        <a href="#" class="social-link">
+          <span></span>
+          Substack
+        </a>
+        <a href="#" class="social-link">
+          <span></span>
+          Spotify Podcasts
+        </a>
+        <a href="#" class="social-link">
+          <span></span>
+          Apple Podcasts
+        </a>
+        <a href="#" class="social-link">
+          <span></span>
+          GitHub
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ─── FOOTER ───────────────────────────────────────── -->
+<footer>
+  <span class="footer-name">Evan Martinez</span>
+  <span class="footer-copy">© <span id="footer-year"></span> · All rights reserved · New York</span>
+</footer>
+
+<script>
+  // Current date in masthead
+  const d = new Date();
+  document.getElementById('current-date').textContent =
+    d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  document.getElementById('footer-year').textContent = d.getFullYear();
+
+  // Scroll reveal
+  const observer = new IntersectionObserver(
+    entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+    { threshold: 0.12 }
+  );
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
